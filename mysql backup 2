@@ -5,8 +5,8 @@ mysqluser=root
 mysqlpasswd=abcd1234
 socket=/data/mysql/mysql.sock
 mylogin="${mysqlbase}/bin/mysql -u$mysqluser -p$mysqlpasswd -S$socket"
-mydump="${mysqlbase}/bin/mysqldump -u$mysqluser -p$mysqlpasswd -B --events --master-data=2 --single-transaction"
-database="$($mylogin -e "show databases"|egrep -vi "sys|_schma|mysql")"
+mydump="${mysqlbase}/bin/mysqldump -u$mysqluser -p$mysqlpasswd -S$socket -B --events --master-data=2 --single-transaction"
+database="$($mylogin -e "show databases"|egrep -vi "sys|_schema|mysql")"
 
 for dbname in $database
 do
