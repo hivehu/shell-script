@@ -1,0 +1,16 @@
+#!/bin/bash
+#此脚本的功能是用来mysql分库备份
+mysqlbase=/usr/local/mysql
+mysqluser=root
+mysqlpasswd=abcd1234
+socket=/data/mysql/mysql.sock
+mylogin="${mysqlbase}/bin/mysql -u$mysqluser -p$mysqlpasswd -S $socket"
+mydump="${mysqlbase}/bin/mysqldump -u$mysqluser -p$mysqlpasswd -S $socket --events -B --master-data=2 --single-transaction"
+database="$($mylogin -e "show databases;"|egrep -vi "sys|_schema|mysql")"
+
+for dbname in $database
+do
+  backupdir=/data/backup/$dbname
+  [ !-d $backupdir ] && mkdir -p $backupdir
+  ${mydump} ${dbname}|gzip > ${backupdir}_$(date +%Y%m%d).sql.gz
+ done
