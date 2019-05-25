@@ -1,0 +1,21 @@
+#!/bin/bash
+#此脚本作用是MySQL数据库分库分表备份
+mysqlbase=/usr/local/mysql
+mysqluser=root
+mysqlpasswd=abcd1234
+socket=/data/mysql/mysql.sock
+mylogin="${mysqlbase}/bin/mysql -u$mysqluser -p$mysqlpasswd -S$socket"
+mydump="${mysqlbase}/bin/mysqldump -u$mysqluser -p$mysqlpasswd -B --events --master-data=2 --single-transaction"
+database="$($mylogin -e "show databases"|egrep -vi "sys|_schma|mysql")"
+
+for dbname in $database
+do
+  table="$($mylogin -e "use $dbname;show tables"|sed '1d')"
+  for tbname in $table
+    backupdir=/data/backup/$dbname/$tbname
+    [!-d $backupdir] && mkdir -p $backupdir
+  do
+      $mydump $dbname $tbname | gzip > $backupdir/$(date +%Y%m%d).sql.gz
+      find $backupdir -type f -mtime +7 -exec rm -rf {} \;                ##删除7天前的备份
+  done
+done
