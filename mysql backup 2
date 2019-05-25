@@ -10,7 +10,7 @@ database="$($mylogin -e "show databases"|egrep -vi "sys|_schma|mysql")"
 
 for dbname in $database
 do
-  table="$($mylogin -e "use $dbname;show tables"|sed '1d')"
+  table="$($mylogin -e "use $dbname;show tables;"|sed '1d')"
   for tbname in $table
     backupdir=/data/backup/$dbname/$tbname
     [!-d $backupdir] && mkdir -p $backupdir
